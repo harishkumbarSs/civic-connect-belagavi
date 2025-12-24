@@ -1,0 +1,9 @@
+{
+  "name": "CivicConnect Belagavi",
+  "description": "A multimodal AI-powered civic grievance application for Belagavi citizens to report waste management, infrastructure, and utility issues. Features intelligent jurisdictional routing and a gamified Civic Score.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}

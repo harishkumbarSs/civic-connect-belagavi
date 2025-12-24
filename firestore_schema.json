@@ -1,0 +1,31 @@
+
+{
+  "grievances": {
+    "docId_XYZ123": {
+      "userId": "user_8822",
+      "userName": "Basavaraj",
+      "geoPoint": {
+        "latitude": 15.8497,
+        "longitude": 74.4977
+      },
+      "status": "OPEN",
+      "aiAnalysis": {
+        "category": "SOLID_WASTE",
+        "severity_score": 4,
+        "description_summary": "Large pile of uncollected waste blocking the drainage near Bogarves.",
+        "suggested_jurisdiction": "BCC",
+        "detected_languages": ["kn", "en"]
+      },
+      "media": {
+        "imageEvidence": {
+          "before": "https://storage.googleapis.com/.../before.jpg",
+          "after": null
+        },
+        "audioNote": "https://storage.googleapis.com/.../voice_note.mp3"
+      },
+      "civicScoreAwarded": 50,
+      "createdAt": "2025-02-24T10:00:00Z",
+      "updatedAt": "2025-02-24T10:05:00Z"
+    }
+  }
+}
