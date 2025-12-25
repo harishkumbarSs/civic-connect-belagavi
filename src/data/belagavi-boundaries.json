@@ -1,0 +1,400 @@
+{
+    "type": "FeatureCollection",
+    "name": "Belagavi_Jurisdictions",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "id": "bcc",
+                "name": "Belagavi City Corporation",
+                "jurisdiction": "BCC",
+                "color": "#3b82f6",
+                "wards": 58
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            74.4500,
+                            15.8200
+                        ],
+                        [
+                            74.5200,
+                            15.8200
+                        ],
+                        [
+                            74.5400,
+                            15.8600
+                        ],
+                        [
+                            74.5300,
+                            15.9000
+                        ],
+                        [
+                            74.4800,
+                            15.9100
+                        ],
+                        [
+                            74.4400,
+                            15.8800
+                        ],
+                        [
+                            74.4300,
+                            15.8500
+                        ],
+                        [
+                            74.4500,
+                            15.8200
+                        ]
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": "cantonment",
+                "name": "Belgaum Cantonment",
+                "jurisdiction": "CANTONMENT",
+                "color": "#059669",
+                "description": "Military and civil areas under Cantonment Board"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            74.4850,
+                            15.8450
+                        ],
+                        [
+                            74.5150,
+                            15.8450
+                        ],
+                        [
+                            74.5200,
+                            15.8650
+                        ],
+                        [
+                            74.5100,
+                            15.8800
+                        ],
+                        [
+                            74.4900,
+                            15.8750
+                        ],
+                        [
+                            74.4800,
+                            15.8600
+                        ],
+                        [
+                            74.4850,
+                            15.8450
+                        ]
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": "vtu",
+                "name": "VTU Campus",
+                "jurisdiction": "VTU",
+                "color": "#8b5cf6",
+                "description": "Visvesvaraya Technological University Campus, Machhe"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            74.4600,
+                            15.7900
+                        ],
+                        [
+                            74.4750,
+                            15.7900
+                        ],
+                        [
+                            74.4800,
+                            15.8050
+                        ],
+                        [
+                            74.4700,
+                            15.8100
+                        ],
+                        [
+                            74.4550,
+                            15.8000
+                        ],
+                        [
+                            74.4600,
+                            15.7900
+                        ]
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": "camp",
+                "name": "Camp Area",
+                "wardId": "W01",
+                "jurisdiction": "BCC",
+                "color": "#60a5fa"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            74.4950,
+                            15.8500
+                        ],
+                        [
+                            74.5050,
+                            15.8500
+                        ],
+                        [
+                            74.5050,
+                            15.8600
+                        ],
+                        [
+                            74.4950,
+                            15.8600
+                        ],
+                        [
+                            74.4950,
+                            15.8500
+                        ]
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": "tilakwadi",
+                "name": "Tilakwadi",
+                "wardId": "W12",
+                "jurisdiction": "BCC",
+                "color": "#60a5fa"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            74.4700,
+                            15.8600
+                        ],
+                        [
+                            74.4850,
+                            15.8600
+                        ],
+                        [
+                            74.4850,
+                            15.8750
+                        ],
+                        [
+                            74.4700,
+                            15.8750
+                        ],
+                        [
+                            74.4700,
+                            15.8600
+                        ]
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": "shahapur",
+                "name": "Shahapur",
+                "wardId": "W18",
+                "jurisdiction": "BCC",
+                "color": "#60a5fa"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            74.4800,
+                            15.8700
+                        ],
+                        [
+                            74.4950,
+                            15.8700
+                        ],
+                        [
+                            74.4950,
+                            15.8850
+                        ],
+                        [
+                            74.4800,
+                            15.8850
+                        ],
+                        [
+                            74.4800,
+                            15.8700
+                        ]
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": "angol",
+                "name": "Angol",
+                "wardId": "W25",
+                "jurisdiction": "BCC",
+                "color": "#60a5fa"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            74.4550,
+                            15.8400
+                        ],
+                        [
+                            74.4700,
+                            15.8400
+                        ],
+                        [
+                            74.4700,
+                            15.8550
+                        ],
+                        [
+                            74.4550,
+                            15.8550
+                        ],
+                        [
+                            74.4550,
+                            15.8400
+                        ]
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": "mangalwar_peth",
+                "name": "Mangalwar Peth",
+                "wardId": "W32",
+                "jurisdiction": "BCC",
+                "color": "#60a5fa"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            74.5000,
+                            15.8550
+                        ],
+                        [
+                            74.5100,
+                            15.8550
+                        ],
+                        [
+                            74.5100,
+                            15.8650
+                        ],
+                        [
+                            74.5000,
+                            15.8650
+                        ],
+                        [
+                            74.5000,
+                            15.8550
+                        ]
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": "vadgaon",
+                "name": "Vadgaon",
+                "wardId": "W40",
+                "jurisdiction": "BCC",
+                "color": "#60a5fa"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            74.4600,
+                            15.8300
+                        ],
+                        [
+                            74.4750,
+                            15.8300
+                        ],
+                        [
+                            74.4750,
+                            15.8450
+                        ],
+                        [
+                            74.4600,
+                            15.8450
+                        ],
+                        [
+                            74.4600,
+                            15.8300
+                        ]
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": "gandhinagar",
+                "name": "Gandhinagar",
+                "wardId": "W45",
+                "jurisdiction": "BCC",
+                "color": "#60a5fa"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            74.4900,
+                            15.8300
+                        ],
+                        [
+                            74.5050,
+                            15.8300
+                        ],
+                        [
+                            74.5050,
+                            15.8450
+                        ],
+                        [
+                            74.4900,
+                            15.8450
+                        ],
+                        [
+                            74.4900,
+                            15.8300
+                        ]
+                    ]
+                ]
+            }
+        }
+    ]
+}

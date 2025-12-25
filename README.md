@@ -6,6 +6,7 @@
 [![Google Cloud](https://img.shields.io/badge/Google%20Cloud-%234285F4.svg?style=flat&logo=google-cloud&logoColor=white)](https://cloud.google.com)
 
 ## 🌟 The 'Why'
+
 Belagavi faces a critical challenge in urban management due to its fragmented administrative landscape, where jurisdictions like the **Belagavi City Corporation (BCC)**, **Cantonment Board**, and **VTU Campus** often overlap. This fragmentation leads to "jurisdictional buck-passing" in waste management and road repairs, leaving citizens' grievances unresolved. **CivicConnect** eliminates this friction by using Multimodal AI to automatically identify, score, and route reports to the correct authority in real-time.
 
 ---
@@ -39,7 +40,7 @@ Follow these steps to deploy the CivicConnect ecosystem:
 
 ### 2. Clone and Initialize
 ```bash
-git clone https://github.com/your-repo/civic-connect-belagavi.git
+git clone https://github.com/harishkumbarSs/civic-connect-belagavi.git
 cd civic-connect-belagavi
 ```
 
@@ -73,6 +74,37 @@ For judging and testing purposes, use the following placeholder account:
 | **Test User** | `citizen@belagavi.in` |
 | **Password** | `Belgaum@2025` |
 | **BCC Dashboard** | `official@bcc.belagavi.gov.in` |
+
+---
+
+## 📁 Project Structure
+
+```
+civic-connect-belagavi/
+├── src/
+│   ├── components/      # React UI components
+│   │   ├── Header.tsx
+│   │   ├── Dashboard.tsx
+│   │   ├── NewReportForm.tsx
+│   │   ├── CivicMap.tsx
+│   │   └── Leaderboard.tsx
+│   ├── services/        # API & business logic
+│   │   ├── geminiService.ts    # AI analysis
+│   │   ├── firestoreService.ts # Database ops
+│   │   └── geoService.ts       # Jurisdiction detection
+│   └── contexts/        # React contexts
+├── functions/           # Cloud Functions backend
+└── package.json
+```
+
+---
+
+## 🏅 SDG Alignment
+
+| Goal | Target | Contribution |
+|------|--------|--------------|
+| **SDG 11** | Sustainable Cities | Real-time waste/infrastructure monitoring |
+| **SDG 16** | Strong Institutions | Transparent grievance tracking & accountability |
 
 ---
 
