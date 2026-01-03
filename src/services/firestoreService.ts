@@ -27,6 +27,14 @@ import {
     UserRank,
     getRankFromScore
 } from '../types';
+import { MOCK_GRIEVANCE_REPORTS, MOCK_LEADERBOARD } from '../data/mockReports';
+
+// Demo mode flag - check if Firebase is configured
+const DEMO_MODE = !import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === 'your_firebase_api_key';
+
+// In-memory store for demo mode (allows adding new reports during demo)
+let demoReports = [...MOCK_GRIEVANCE_REPORTS];
+let demoSubscribers: ((reports: GrievanceReport[]) => void)[] = [];
 
 // Collection references
 const GRIEVANCES_COLLECTION = 'grievances';
@@ -39,6 +47,33 @@ const USERS_COLLECTION = 'users';
 export const createGrievance = async (
     grievanceData: Omit<GrievanceReport, 'id' | 'createdAt' | 'updatedAt'>
 ): Promise<string> => {
+    // Demo mode: add to in-memory store
+    if (DEMO_MODE) {
+        const newId = `demo-report-${Date.now()}`;
+        const newReport: GrievanceReport = {
+            ...grievanceData,
+            id: newId,
+            status: GrievanceStatus.SUBMITTED,
+            civicPointsAwarded: 50,
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+        };
+        demoReports.unshift(newReport);
+
+        // Notify all subscribers of the update
+        demoSubscribers.forEach(callback => {
+            callback([...demoReports].sort((a, b) => {
+                const aTime = typeof a.createdAt === 'number' ? a.createdAt : Date.now();
+                const bTime = typeof b.createdAt === 'number' ? b.createdAt : Date.now();
+                return bTime - aTime;
+            }));
+        });
+
+        console.log('📝 Demo mode: Created new grievance', newId);
+        return newId;
+    }
+
+    // Production mode: use Firestore
     try {
         const docRef = await addDoc(collection(db, GRIEVANCES_COLLECTION), {
             ...grievanceData,
@@ -59,6 +94,37 @@ export const updateGrievanceStatus = async (
     status: GrievanceStatus,
     resolution?: GrievanceReport['resolution']
 ): Promise<void> => {
+    // Demo mode: update in-memory store
+    if (DEMO_MODE) {
+        const reportIndex = demoReports.findIndex(r => r.id === grievanceId);
+        if (reportIndex !== -1) {
+            demoReports[reportIndex] = {
+                ...demoReports[reportIndex],
+                status,
+                updatedAt: Date.now(),
+                ...(resolution && {
+                    resolution: {
+                        ...resolution,
+                        resolvedAt: Date.now(),
+                    }
+                })
+            };
+
+            // Notify all subscribers
+            demoSubscribers.forEach(callback => {
+                callback([...demoReports].sort((a, b) => {
+                    const aTime = typeof a.createdAt === 'number' ? a.createdAt : Date.now();
+                    const bTime = typeof b.createdAt === 'number' ? b.createdAt : Date.now();
+                    return bTime - aTime;
+                }));
+            });
+
+            console.log('✅ Demo mode: Updated grievance status', grievanceId, status);
+        }
+        return;
+    }
+
+    // Production mode: use Firestore
     try {
         const updateData: any = {
             status,
@@ -132,6 +198,37 @@ export const subscribeToGrievances = (
     callback: (grievances: GrievanceReport[]) => void,
     filterByStatus?: GrievanceStatus[]
 ): (() => void) => {
+    // Demo mode: use mock data
+    if (DEMO_MODE) {
+        console.log('📋 Demo mode: Using mock grievance reports');
+
+        // Add subscriber for real-time updates in demo mode
+        demoSubscribers.push(callback);
+
+        // Filter and return mock data
+        const filterReports = () => {
+            let reports = [...demoReports].sort((a, b) => {
+                const aTime = typeof a.createdAt === 'number' ? a.createdAt : Date.now();
+                const bTime = typeof b.createdAt === 'number' ? b.createdAt : Date.now();
+                return bTime - aTime;
+            });
+
+            if (filterByStatus && filterByStatus.length > 0) {
+                reports = reports.filter(r => filterByStatus.includes(r.status));
+            }
+            return reports;
+        };
+
+        // Initial callback with mock data
+        setTimeout(() => callback(filterReports()), 100);
+
+        // Return unsubscribe function
+        return () => {
+            demoSubscribers = demoSubscribers.filter(sub => sub !== callback);
+        };
+    }
+
+    // Production mode: use Firestore
     let q = query(collection(db, GRIEVANCES_COLLECTION), orderBy('createdAt', 'desc'));
 
     if (filterByStatus && filterByStatus.length > 0) {
@@ -263,6 +360,13 @@ export const updateUserScore = async (
 // ============================================
 
 export const getLeaderboard = async (limit: number = 10): Promise<LeaderboardEntry[]> => {
+    // Demo mode: return mock leaderboard
+    if (DEMO_MODE) {
+        console.log('🏆 Demo mode: Using mock leaderboard');
+        return MOCK_LEADERBOARD.slice(0, limit);
+    }
+
+    // Production mode: use Firestore
     try {
         const q = query(
             collection(db, USERS_COLLECTION),

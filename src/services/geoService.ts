@@ -5,6 +5,9 @@
 import { Jurisdiction } from '../types';
 import belagaviBoundaries from '../data/belagavi-boundaries.json';
 
+// Demo mode - set to false to use real device location
+const DEMO_MODE = false;
+
 // ============================================
 // Get Current Location
 // ============================================
@@ -16,8 +19,29 @@ export interface GeoLocation {
     address?: string;
 }
 
+// Random Belagavi locations for demo variety
+const BELAGAVI_DEMO_LOCATIONS = [
+    { lat: 15.8497, lng: 74.4977, address: 'Shivaji Circle, Belagavi, Karnataka, 590001, India' },
+    { lat: 15.8520, lng: 74.5050, address: 'Camp Area, Belagavi, Karnataka, 590001, India' },
+    { lat: 15.8650, lng: 74.4850, address: 'Tilakwadi, Belagavi, Karnataka, 590006, India' },
+    { lat: 15.8400, lng: 74.5100, address: 'Shahapur, Belagavi, Karnataka, 590003, India' },
+    { lat: 15.7950, lng: 74.4700, address: 'VTU Campus, Machhe, Belagavi, Karnataka, 590018, India' },
+];
+
 export const getCurrentLocation = (): Promise<GeoLocation> => {
     return new Promise((resolve, reject) => {
+        // For demo/hackathon, always use fixed Belagavi location
+        if (DEMO_MODE) {
+            console.log('🎮 Demo mode: Using Belagavi location');
+            resolve({
+                latitude: 15.8497,
+                longitude: 74.4977,
+                accuracy: 10,
+                address: 'Shivaji Circle, Camp Area, Belagavi, Karnataka, 590001, India',
+            });
+            return;
+        }
+
         if (!navigator.geolocation) {
             reject(new Error('Geolocation is not supported by your browser'));
             return;

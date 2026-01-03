@@ -1,56 +1,113 @@
 // ============================================
-// Interactive Civic Map Component
+// Interactive Civic Map Component with Leaflet
+// Real Map of Belagavi City
 // ============================================
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import { GrievanceReport, GrievanceCategory, GrievanceStatus, getCategoryIcon, getSeverityLabel, getJurisdictionLabel } from '../types';
-import { BELAGAVI_CENTER, getBelagaviBoundaries } from '../services/geoService';
+import { BELAGAVI_CENTER } from '../services/geoService';
+import { formatDistanceToNow } from 'date-fns';
+
+// Fix Leaflet default marker icon issue with bundlers
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+});
 
 interface CivicMapProps {
     reports: GrievanceReport[];
 }
 
+// Custom marker icons based on severity
+const createCustomIcon = (severity: number, status: GrievanceStatus) => {
+    const getColor = () => {
+        if (status === GrievanceStatus.RESOLVED) return '#22c55e'; // Green for resolved
+        if (severity >= 5) return '#ef4444'; // Red - Critical
+        if (severity >= 4) return '#f97316'; // Orange - High
+        if (severity >= 3) return '#eab308'; // Yellow - Medium
+        if (severity >= 2) return '#22c55e'; // Green - Low
+        return '#3b82f6'; // Blue - Minor
+    };
+
+    const color = getColor();
+    const isResolved = status === GrievanceStatus.RESOLVED;
+
+    return L.divIcon({
+        className: 'custom-marker',
+        html: `
+            <div style="
+                width: 28px;
+                height: 28px;
+                background-color: ${color};
+                border: 3px solid white;
+                border-radius: 50%;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                ${!isResolved ? 'animation: pulse 2s infinite;' : ''}
+            ">
+                ${isResolved ? '<span style="color: white; font-size: 14px;">✓</span>' : ''}
+            </div>
+            <style>
+                @keyframes pulse {
+                    0% { box-shadow: 0 0 0 0 ${color}80; }
+                    70% { box-shadow: 0 0 0 10px ${color}00; }
+                    100% { box-shadow: 0 0 0 0 ${color}00; }
+                }
+            </style>
+        `,
+        iconSize: [28, 28],
+        iconAnchor: [14, 14],
+        popupAnchor: [0, -14],
+    });
+};
+
+// Map bounds adjuster component
+const MapBoundsAdjuster: React.FC<{ reports: GrievanceReport[] }> = ({ reports }) => {
+    const map = useMap();
+
+    useEffect(() => {
+        if (reports.length > 0) {
+            const bounds = L.latLngBounds(
+                reports.map(r => [r.location?.latitude || BELAGAVI_CENTER.latitude, r.location?.longitude || BELAGAVI_CENTER.longitude])
+            );
+            map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+        }
+    }, [reports, map]);
+
+    return null;
+};
+
 const CivicMap: React.FC<CivicMapProps> = ({ reports }) => {
-    const mapRef = useRef<HTMLDivElement>(null);
-    const [selectedReport, setSelectedReport] = useState<GrievanceReport | null>(null);
     const [filter, setFilter] = useState<'all' | 'open' | 'resolved'>('all');
+    const [selectedCategory, setSelectedCategory] = useState<GrievanceCategory | 'all'>('all');
 
     // Filter reports
     const filteredReports = reports.filter(r => {
-        if (filter === 'open') return [GrievanceStatus.SUBMITTED, GrievanceStatus.UNDER_REVIEW, GrievanceStatus.IN_PROGRESS].includes(r.status);
-        if (filter === 'resolved') return r.status === GrievanceStatus.RESOLVED;
-        return true;
+        const statusMatch = filter === 'all' ||
+            (filter === 'open' && [GrievanceStatus.SUBMITTED, GrievanceStatus.UNDER_REVIEW, GrievanceStatus.IN_PROGRESS].includes(r.status)) ||
+            (filter === 'resolved' && r.status === GrievanceStatus.RESOLVED);
+
+        const categoryMatch = selectedCategory === 'all' || r.category === selectedCategory;
+
+        return statusMatch && categoryMatch;
     });
 
-    // Get marker color based on severity
-    const getMarkerColor = (severity: number): string => {
-        if (severity >= 5) return '#ef4444'; // Red
-        if (severity >= 4) return '#f97316'; // Orange
-        if (severity >= 3) return '#eab308'; // Yellow
-        if (severity >= 2) return '#22c55e'; // Green
-        return '#3b82f6'; // Blue
+    // Format timestamp
+    const formatDate = (timestamp: any): string => {
+        if (!timestamp) return 'Recently';
+        const date = typeof timestamp === 'number' ? new Date(timestamp) : timestamp.toDate?.() || new Date(timestamp);
+        return formatDistanceToNow(date, { addSuffix: true });
     };
 
-    // Calculate position on map (simple projection)
-    const getPosition = (report: GrievanceReport) => {
-        const lat = report.location?.latitude || BELAGAVI_CENTER.latitude;
-        const lng = report.location?.longitude || BELAGAVI_CENTER.longitude;
-
-        // Map bounds
-        const bounds = {
-            north: 15.92,
-            south: 15.78,
-            east: 74.56,
-            west: 74.42,
-        };
-
-        const x = ((lng - bounds.west) / (bounds.east - bounds.west)) * 100;
-        const y = ((bounds.north - lat) / (bounds.north - bounds.south)) * 100;
-
-        return { x: Math.max(5, Math.min(95, x)), y: Math.max(5, Math.min(95, y)) };
-    };
-
-    const boundaries = getBelagaviBoundaries();
+    // Belagavi city center coordinates
+    const belagaviCenter: [number, number] = [BELAGAVI_CENTER.latitude, BELAGAVI_CENTER.longitude];
 
     return (
         <div className="space-y-4">
@@ -59,176 +116,208 @@ const CivicMap: React.FC<CivicMapProps> = ({ reports }) => {
                 <div className="flex items-center gap-2">
                     <span className="text-2xl">🗺️</span>
                     <div>
-                        <h3 className="text-lg font-bold text-slate-800">Live Civic Heatmap</h3>
+                        <h3 className="text-lg font-bold text-slate-800">Live Civic Heatmap - Belagavi</h3>
                         <p className="text-xs text-slate-400">{filteredReports.length} reports visible</p>
                     </div>
                 </div>
 
                 {/* Filter Buttons */}
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                     <button
                         onClick={() => setFilter('all')}
-                        className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${filter === 'all' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                            }`}
+                        className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${filter === 'all' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
                     >
                         All
                     </button>
                     <button
                         onClick={() => setFilter('open')}
-                        className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${filter === 'open' ? 'bg-orange-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                            }`}
+                        className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${filter === 'open' ? 'bg-orange-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
                     >
                         Open
                     </button>
                     <button
                         onClick={() => setFilter('resolved')}
-                        className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${filter === 'resolved' ? 'bg-green-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                            }`}
+                        className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${filter === 'resolved' ? 'bg-green-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
                     >
                         Resolved
                     </button>
                 </div>
             </div>
 
-            {/* Map Container */}
-            <div
-                ref={mapRef}
-                className="card relative h-[500px] overflow-hidden"
-                style={{
-                    backgroundImage: 'radial-gradient(circle at 1px 1px, #e2e8f0 1px, transparent 0)',
-                    backgroundSize: '20px 20px',
-                }}
-            >
-                {/* Jurisdiction Boundaries (SVG Overlay) */}
-                <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
-                    {/* BCC Area - Blue */}
-                    <path
-                        d="M10,70 L90,70 L90,10 L10,10 Z"
-                        fill="rgba(59, 130, 246, 0.1)"
-                        stroke="rgba(59, 130, 246, 0.3)"
-                        strokeWidth="0.5"
+            {/* Category Filter */}
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                <button
+                    onClick={() => setSelectedCategory('all')}
+                    className={`px-3 py-1.5 text-xs font-medium rounded-full whitespace-nowrap transition-all ${selectedCategory === 'all' ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                >
+                    All Categories
+                </button>
+                {Object.values(GrievanceCategory).filter(c => c !== GrievanceCategory.OTHER).map(cat => (
+                    <button
+                        key={cat}
+                        onClick={() => setSelectedCategory(cat)}
+                        className={`px-3 py-1.5 text-xs font-medium rounded-full whitespace-nowrap transition-all ${selectedCategory === cat ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                    >
+                        {getCategoryIcon(cat)} {cat.replace(/_/g, ' ')}
+                    </button>
+                ))}
+            </div>
+
+            {/* Leaflet Map Container */}
+            <div className="card overflow-hidden rounded-2xl" style={{ height: '500px' }}>
+                <MapContainer
+                    center={belagaviCenter}
+                    zoom={13}
+                    style={{ height: '100%', width: '100%' }}
+                    zoomControl={true}
+                    scrollWheelZoom={true}
+                >
+                    {/* OpenStreetMap Tiles */}
+                    <TileLayer
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     />
 
-                    {/* Cantonment Area - Green */}
-                    <path
-                        d="M45,55 L70,55 L70,35 L45,35 Z"
-                        fill="rgba(5, 150, 105, 0.15)"
-                        stroke="rgba(5, 150, 105, 0.4)"
-                        strokeWidth="0.5"
+                    {/* Jurisdiction boundary circles (approximate) */}
+                    <Circle
+                        center={[15.8497, 74.4977]}
+                        radius={3000}
+                        pathOptions={{
+                            color: '#3b82f6',
+                            fillColor: '#3b82f6',
+                            fillOpacity: 0.05,
+                            weight: 1,
+                            dashArray: '5, 5'
+                        }}
+                    />
+                    <Circle
+                        center={[15.8580, 74.5050]}
+                        radius={1500}
+                        pathOptions={{
+                            color: '#059669',
+                            fillColor: '#059669',
+                            fillOpacity: 0.08,
+                            weight: 2
+                        }}
+                    />
+                    <Circle
+                        center={[15.7950, 74.4700]}
+                        radius={1000}
+                        pathOptions={{
+                            color: '#8b5cf6',
+                            fillColor: '#8b5cf6',
+                            fillOpacity: 0.08,
+                            weight: 2
+                        }}
                     />
 
-                    {/* VTU Campus - Purple */}
-                    <path
-                        d="M15,90 L35,90 L35,70 L15,70 Z"
-                        fill="rgba(139, 92, 246, 0.15)"
-                        stroke="rgba(139, 92, 246, 0.4)"
-                        strokeWidth="0.5"
-                    />
-                </svg>
+                    {/* Adjust bounds to fit markers */}
+                    {filteredReports.length > 0 && <MapBoundsAdjuster reports={filteredReports} />}
 
-                {/* Jurisdiction Labels */}
-                <div className="absolute top-4 left-4 text-[10px] font-bold text-blue-600/50 uppercase">
-                    Belagavi City Corporation
-                </div>
-                <div className="absolute top-[40%] left-[50%] text-[10px] font-bold text-green-600/50 uppercase">
-                    Cantonment
-                </div>
-                <div className="absolute bottom-[15%] left-[20%] text-[10px] font-bold text-purple-600/50 uppercase">
-                    VTU Campus
-                </div>
-
-                {/* Report Markers */}
-                {filteredReports.map((report) => {
-                    const pos = getPosition(report);
-                    const isSelected = selectedReport?.id === report.id;
-
-                    return (
-                        <div
+                    {/* Report Markers */}
+                    {filteredReports.map((report) => (
+                        <Marker
                             key={report.id}
-                            className="absolute cursor-pointer group z-10"
-                            style={{ left: `${pos.x}%`, top: `${pos.y}%`, transform: 'translate(-50%, -50%)' }}
-                            onClick={() => setSelectedReport(isSelected ? null : report)}
+                            position={[
+                                report.location?.latitude || BELAGAVI_CENTER.latitude,
+                                report.location?.longitude || BELAGAVI_CENTER.longitude
+                            ]}
+                            icon={createCustomIcon(report.severity_score, report.status)}
                         >
-                            {/* Marker */}
-                            <div
-                                className={`relative w-4 h-4 rounded-full border-2 border-white shadow-lg transition-transform ${isSelected ? 'scale-150 z-20' : 'hover:scale-125'
-                                    }`}
-                                style={{ backgroundColor: getMarkerColor(report.severity_score) }}
-                            >
-                                {/* Pulse effect for open reports */}
-                                {report.status !== GrievanceStatus.RESOLVED && (
-                                    <div
-                                        className="absolute inset-0 rounded-full animate-ping opacity-50"
-                                        style={{ backgroundColor: getMarkerColor(report.severity_score) }}
-                                    />
-                                )}
-                            </div>
+                            <Popup maxWidth={300} className="civic-popup">
+                                <div className="min-w-[250px]">
+                                    {report.imageUrl && (
+                                        <img
+                                            src={report.imageUrl}
+                                            alt="Issue"
+                                            className="w-full h-32 object-cover rounded-t-lg -mt-3 -mx-3 mb-3"
+                                            style={{ width: 'calc(100% + 24px)' }}
+                                        />
+                                    )}
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-sm font-bold text-slate-800">
+                                                {getCategoryIcon(report.category)} {report.category.replace(/_/g, ' ')}
+                                            </span>
+                                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${report.status === GrievanceStatus.RESOLVED
+                                                    ? 'bg-green-100 text-green-700'
+                                                    : report.status === GrievanceStatus.IN_PROGRESS
+                                                        ? 'bg-amber-100 text-amber-700'
+                                                        : 'bg-blue-100 text-blue-700'
+                                                }`}>
+                                                {report.status.replace(/_/g, ' ')}
+                                            </span>
+                                        </div>
 
-                            {/* Tooltip */}
-                            <div
-                                className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 bg-white rounded-xl shadow-xl border border-slate-200 overflow-hidden z-30 transition-all duration-200 ${isSelected ? 'opacity-100 visible' : 'opacity-0 invisible group-hover:opacity-100 group-hover:visible'
-                                    }`}
-                            >
-                                {report.imageUrl && (
-                                    <img src={report.imageUrl} className="w-full h-24 object-cover" alt="Issue" />
-                                )}
-                                <div className="p-3">
-                                    <div className="flex items-center justify-between mb-2">
-                                        <span className="text-sm font-semibold">
-                                            {getCategoryIcon(report.category)} {report.category.replace(/_/g, ' ')}
-                                        </span>
-                                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${report.status === GrievanceStatus.RESOLVED
-                                                ? 'bg-green-100 text-green-700'
-                                                : 'bg-orange-100 text-orange-700'
-                                            }`}>
-                                            {report.status}
-                                        </span>
-                                    </div>
-                                    <p className="text-xs text-slate-600 line-clamp-2 mb-2">{report.description_summary}</p>
-                                    <div className="flex justify-between text-[10px] text-slate-400">
-                                        <span>Severity: {report.severity_score}/5</span>
-                                        <span>{getJurisdictionLabel(report.suggested_jurisdiction)}</span>
+                                        <p className="text-xs text-slate-600 leading-relaxed">
+                                            {report.description_summary}
+                                        </p>
+
+                                        <div className="flex items-center gap-2 text-[10px] text-slate-400 pt-1 border-t border-slate-100">
+                                            <span>⚠️ Severity: {report.severity_score}/5</span>
+                                            <span>•</span>
+                                            <span>🏛️ {getJurisdictionLabel(report.suggested_jurisdiction).split(' ')[0]}</span>
+                                        </div>
+
+                                        <div className="flex items-center gap-2 text-[10px] text-slate-400">
+                                            <span>📍 {report.location?.address || 'Belagavi'}</span>
+                                        </div>
+
+                                        <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                                            <div className="flex items-center gap-1.5">
+                                                <img
+                                                    src={report.userPhotoURL || `https://ui-avatars.com/api/?name=${report.userName}`}
+                                                    alt={report.userName}
+                                                    className="w-5 h-5 rounded-full"
+                                                />
+                                                <span className="text-[10px] text-slate-500">{report.userName}</span>
+                                            </div>
+                                            <span className="text-[10px] text-slate-400">
+                                                {formatDate(report.createdAt)}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    );
-                })}
+                            </Popup>
+                        </Marker>
+                    ))}
+                </MapContainer>
+            </div>
 
-                {/* Empty State */}
-                {filteredReports.length === 0 && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="text-center text-slate-400">
-                            <span className="text-4xl mb-4 block">📍</span>
-                            <p className="font-medium">No reports to display</p>
-                            <p className="text-sm">Be the first to report an issue!</p>
-                        </div>
+            {/* Legend */}
+            <div className="flex flex-wrap gap-4 justify-between items-start">
+                <div className="flex flex-wrap gap-4">
+                    <div className="flex items-center gap-2 text-xs text-slate-500">
+                        <div className="w-3 h-3 rounded-full bg-red-500 border-2 border-white shadow-sm" />
+                        <span>Critical</span>
                     </div>
-                )}
-
-                {/* Legend */}
-                <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm p-3 rounded-xl border border-slate-200 shadow-sm">
-                    <h5 className="text-[10px] font-bold uppercase text-slate-400 mb-2">Severity</h5>
-                    <div className="space-y-1 text-[10px]">
-                        <div className="flex items-center gap-2">
-                            <div className="w-2.5 h-2.5 rounded-full bg-red-500" /> Critical (5)
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <div className="w-2.5 h-2.5 rounded-full bg-orange-500" /> High (4)
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <div className="w-2.5 h-2.5 rounded-full bg-yellow-500" /> Medium (3)
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <div className="w-2.5 h-2.5 rounded-full bg-green-500" /> Low (1-2)
-                        </div>
+                    <div className="flex items-center gap-2 text-xs text-slate-500">
+                        <div className="w-3 h-3 rounded-full bg-orange-500 border-2 border-white shadow-sm" />
+                        <span>High</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-slate-500">
+                        <div className="w-3 h-3 rounded-full bg-yellow-500 border-2 border-white shadow-sm" />
+                        <span>Medium</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-slate-500">
+                        <div className="w-3 h-3 rounded-full bg-green-500 border-2 border-white shadow-sm" />
+                        <span>Low/Resolved</span>
                     </div>
                 </div>
 
-                {/* Live Feed Badge */}
-                <div className="absolute top-4 right-4 flex items-center gap-2 bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg">
-                    <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
-                    Live Feed
+                <div className="flex gap-4">
+                    <div className="flex items-center gap-2 text-xs text-slate-400">
+                        <div className="w-4 h-4 rounded-full border-2 border-blue-400 border-dashed" />
+                        <span>BCC Area</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-slate-400">
+                        <div className="w-4 h-4 rounded-full border-2 border-green-500" />
+                        <span>Cantonment</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-slate-400">
+                        <div className="w-4 h-4 rounded-full border-2 border-purple-500" />
+                        <span>VTU</span>
+                    </div>
                 </div>
             </div>
 
