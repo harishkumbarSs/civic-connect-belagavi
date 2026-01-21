@@ -269,6 +269,58 @@ export const MOCK_GRIEVANCE_REPORTS: GrievanceReport[] = [
         createdAt: Date.now() - 6 * 24 * 60 * 60 * 1000, // 6 days ago
         updatedAt: Date.now() - 1 * 24 * 60 * 60 * 1000,
     },
+    // Additional reports for better demo variety
+    {
+        id: 'demo-report-013',
+        userId: DEMO_USERS[2].uid,
+        userName: DEMO_USERS[2].name,
+        userPhotoURL: DEMO_USERS[2].photo,
+        category: GrievanceCategory.ROADS,
+        severity_score: 4,
+        description_summary: 'Construction debris blocking half of the road near Rani Channamma statue. Traffic congestion during peak hours.',
+        suggested_jurisdiction: Jurisdiction.BCC,
+        detected_objects: ['construction debris', 'blocked road', 'traffic congestion'],
+        location: { latitude: 15.8510, longitude: 74.5030, address: 'Near Rani Channamma Statue, Belagavi' },
+        imageUrl: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&h=300&fit=crop',
+        status: GrievanceStatus.SUBMITTED,
+        civicPointsAwarded: 50,
+        createdAt: Date.now() - 4 * 60 * 60 * 1000, // 4 hours ago
+        updatedAt: Date.now() - 4 * 60 * 60 * 1000,
+    },
+    {
+        id: 'demo-report-014',
+        userId: DEMO_USERS[3].uid,
+        userName: DEMO_USERS[3].name,
+        userPhotoURL: DEMO_USERS[3].photo,
+        category: GrievanceCategory.WATER_SUPPLY,
+        severity_score: 3,
+        description_summary: 'Discolored water supply in VTU hostels for past 2 days. Students reporting stomach issues.',
+        suggested_jurisdiction: Jurisdiction.VTU,
+        detected_objects: ['dirty water', 'water tank', 'hostel building'],
+        location: { latitude: 15.7960, longitude: 74.4720, address: 'VTU Boys Hostel, Machhe, Belagavi' },
+        imageUrl: 'https://images.unsplash.com/photo-1541544537156-7627a7a4aa1c?w=400&h=300&fit=crop',
+        status: GrievanceStatus.UNDER_REVIEW,
+        civicPointsAwarded: 50,
+        createdAt: Date.now() - 18 * 60 * 60 * 1000, // 18 hours ago
+        updatedAt: Date.now() - 6 * 60 * 60 * 1000,
+    },
+    {
+        id: 'demo-report-015',
+        userId: DEMO_USERS[4].uid,
+        userName: DEMO_USERS[4].name,
+        userPhotoURL: DEMO_USERS[4].photo,
+        category: GrievanceCategory.SOLID_WASTE,
+        severity_score: 5,
+        description_summary: 'Illegal dumping of hospital waste near residential area. Bio-hazard risk. Urgent intervention needed.',
+        suggested_jurisdiction: Jurisdiction.CANTONMENT,
+        detected_objects: ['medical waste', 'plastic bags', 'bio-hazard materials', 'residential area'],
+        location: { latitude: 15.8590, longitude: 74.5070, address: 'Near Military Hospital, Camp, Belagavi' },
+        imageUrl: 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=400&h=300&fit=crop',
+        status: GrievanceStatus.IN_PROGRESS,
+        civicPointsAwarded: 50,
+        createdAt: Date.now() - 8 * 60 * 60 * 1000, // 8 hours ago
+        updatedAt: Date.now() - 2 * 60 * 60 * 1000,
+    },
 ];
 
 // Export demo leaderboard data

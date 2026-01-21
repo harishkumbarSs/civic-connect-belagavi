@@ -122,8 +122,8 @@ export const analyzeGrievance = async (
     retryCount = 0
 ): Promise<GeminiAnalysisResult> => {
     const ai = getAI();
-    // Using gemini-pro-vision for image analysis
-    const modelName = 'gemini-pro-vision';
+    // Using gemini-2.0-flash for multimodal analysis with function calling
+    const modelName = 'gemini-2.0-flash';
 
     // Build content parts
     const parts: any[] = [
@@ -167,18 +167,12 @@ Return the structured data via the file_grievance function.`,
             config: {
                 systemInstruction: SYSTEM_PROMPT,
                 tools: [{ functionDeclarations: [fileGrievanceTool] }],
-                toolConfig: {
-                    functionCallingConfig: {
-                        mode: 'ANY',
-                        allowedFunctionNames: ['file_grievance']
-                    }
-                }
             },
         });
 
         const call = response.functionCalls?.[0];
         if (call && call.args) {
-            return call.args as GeminiAnalysisResult;
+            return call.args as unknown as GeminiAnalysisResult;
         }
 
         throw new Error("AI failed to generate a structured report. Please try with a clearer image.");

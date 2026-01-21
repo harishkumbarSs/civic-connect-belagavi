@@ -1,79 +1,111 @@
-# CivicConnect Belagavi - AI-Powered Civic Orchestrator 🏛️
+# CivicConnect Belagavi - AI-Powered Civic Grievance Platform 🏛️
 
-[![Flutter](https://img.shields.io/badge/Flutter-%2302569B.svg?style=flat&logo=Flutter&logoColor=white)](https://flutter.dev)
-[![Firebase](https://img.shields.io/badge/Firebase-%23039BE5.svg?style=flat&logo=Firebase&logoColor=white)](https://firebase.google.com)
-[![Gemini API](https://img.shields.io/badge/Gemini%20API-8E75B2.svg?style=flat&logo=google-gemini&logoColor=white)](https://ai.google.dev)
-[![Google Cloud](https://img.shields.io/badge/Google%20Cloud-%234285F4.svg?style=flat&logo=google-cloud&logoColor=white)](https://cloud.google.com)
+[![React](https://img.shields.io/badge/React-18.3-61DAFB?style=flat&logo=react&logoColor=white)](https://react.dev)
+[![Vite](https://img.shields.io/badge/Vite-6.0-646CFF?style=flat&logo=vite&logoColor=white)](https://vitejs.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Firebase](https://img.shields.io/badge/Firebase-11.1-FFCA28?style=flat&logo=firebase&logoColor=black)](https://firebase.google.com)
+[![Gemini AI](https://img.shields.io/badge/Gemini%20AI-2.0-8E75B2?style=flat&logo=google-gemini&logoColor=white)](https://ai.google.dev)
+[![TailwindCSS](https://img.shields.io/badge/Tailwind-3.4-06B6D4?style=flat&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 
-## 🌟 The 'Why'
-
-Belagavi faces a critical challenge in urban management due to its fragmented administrative landscape, where jurisdictions like the **Belagavi City Corporation (BCC)**, **Cantonment Board**, and **VTU Campus** often overlap. This fragmentation leads to "jurisdictional buck-passing" in waste management and road repairs, leaving citizens' grievances unresolved. **CivicConnect** eliminates this friction by using Multimodal AI to automatically identify, score, and route reports to the correct authority in real-time.
-
----
-
-## 🚀 The 'How' (Technical Architecture)
-
-Our system leverages a cutting-edge **Agentic Workflow** to transform unstructured citizen input into actionable municipal data:
-
-### 👁️ Visual Intelligence
-Utilizes **Gemini 2.0 Flash** to perform high-speed multimodal analysis. The model processes images of infrastructure failure (e.g., potholes, trash heaps) and integrates context from voice notes provided in **English, Kannada, or Marathi**.
-
-### 🤖 Agentic Workflow
-Deployed via **Python Google Cloud Functions (2nd Gen)**, the backend serves as the "Orchestrator." It uses Function Calling to generate structured JSON outputs including:
-*   **Category Classification:** (Solid Waste, Roads, etc.)
-*   **Severity Scoring:** (1-5 dynamic priority)
-*   **Jurisdictional Routing:** Intelligent selection between BCC, Cantonment, or VTU based on visual landmarks.
-
-### 🔄 Real-time Sync & Gamification
-**Firebase Firestore** acts as the single source of truth, synchronizing data between the citizen mobile app and the official dashboard. A background trigger automatically calculates and awards **Civic Points** to users upon verified resolution, driving community engagement through a "Civic Guardian" ranking system.
+> 🏆 **Built for TechSprint Belgaum 2025** - GDG on Campus Hackathon
 
 ---
 
-## 🛠️ Setup Guide
+## 🌟 The Problem
 
-Follow these steps to deploy the CivicConnect ecosystem:
+Belagavi faces a critical challenge in urban management due to its **fragmented administrative landscape**. With overlapping jurisdictions between:
 
-### 1. Prerequisites
-*   Flutter SDK (Stable)
-*   Firebase CLI
-*   Google Cloud Project with Vertex AI API enabled
+- **Belagavi City Corporation (BCC)** - Municipal areas
+- **Cantonment Board** - Military and civil areas
+- **VTU Campus** - University grounds
+- **PWD** - State highways
 
-### 2. Clone and Initialize
+Citizens experience "jurisdictional buck-passing" where grievances get bounced between authorities, leaving issues unresolved.
+
+**CivicConnect eliminates this friction** by using Multimodal AI to automatically identify, classify, and route reports to the correct authority in real-time.
+
+---
+
+## 🚀 Key Features
+
+| Feature | Description |
+|---------|-------------|
+| 📸 **AI-Powered Analysis** | Upload a photo and Gemini AI instantly classifies the issue, determines severity, and suggests the responsible jurisdiction |
+| 🗺️ **Live Civic Heatmap** | Interactive map showing all reported issues across Belagavi with real-time updates |
+| 🎮 **Gamification** | Earn Civic Points, climb the leaderboard, and unlock badges for active participation |
+| 🏛️ **Smart Routing** | Auto-detection of jurisdiction boundaries ensures reports reach the right authority |
+| 🔊 **Multilingual Voice Notes** | Support for Kannada, Marathi, Hindi, and English voice descriptions |
+| 📊 **Admin Dashboard** | Officials can track, update, and resolve grievances with full transparency |
+
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+- **React 18** with TypeScript
+- **Vite** for blazing-fast development
+- **TailwindCSS** for modern styling
+- **Leaflet/React-Leaflet** for interactive maps
+- **Zustand** for state management
+
+### Backend & AI
+- **Firebase Authentication** (Google Sign-In)
+- **Cloud Firestore** (Real-time database)
+- **Firebase Storage** (Image uploads)
+- **Cloud Functions** (Python) - Server-side AI
+- **Gemini 2.0 Flash** - Multimodal AI analysis
+
+---
+
+## 📦 Quick Start
+
+### Prerequisites
+- Node.js 18+ and npm
+- Firebase CLI (`npm install -g firebase-tools`)
+- Gemini API Key from [Google AI Studio](https://aistudio.google.com/apikey)
+
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/harishkumbarSs/civic-connect-belagavi.git
 cd civic-connect-belagavi
 ```
 
-### 3. Firebase Configuration
-1.  Create a Firebase project at [console.firebase.google.com](https://console.firebase.google.com).
-2.  Add an Android/iOS app and download the `google-services.json` or `GoogleService-Info.plist`.
-3.  Place these files in the respective `android/app/` or `ios/Runner/` directories of the Flutter project.
-
-### 4. Deploy Cloud Functions
-Navigate to the `functions/` directory and deploy the Python backend:
+### 2. Install Dependencies
 ```bash
-cd functions
-firebase deploy --only functions
+npm install
 ```
-*Note: Ensure you have set your Gemini API Key in the environment secrets or via Google Secret Manager.*
 
-### 5. Run the Application
+### 3. Configure Environment
 ```bash
-flutter pub get
-flutter run
+cp .env.example .env
 ```
+
+Edit `.env` and add your API keys:
+```env
+VITE_GEMINI_API_KEY=your_gemini_api_key
+VITE_FIREBASE_API_KEY=your_firebase_api_key
+VITE_FIREBASE_PROJECT_ID=your_project_id
+```
+
+### 4. Run Development Server
+```bash
+npm run dev
+```
+
+Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ---
 
 ## 🧪 Demo Credentials
 
-For judging and testing purposes, use the following placeholder account:
+For testing purposes:
 
-| Field | Value |
-| :--- | :--- |
-| **Test User** | `citizen@belagavi.in` |
-| **Password** | `Belgaum@2025` |
-| **BCC Dashboard** | `official@bcc.belagavi.gov.in` |
+| Role | Email | Password |
+|------|-------|----------|
+| Citizen | `demo@civicconnect.in` | N/A (Demo Mode) |
+| BCC Official | `official@bcc.belagavi.gov.in` | Admin Access |
+
+> 💡 **Demo Mode**: The app works without Firebase configuration using mock data
 
 ---
 
@@ -82,19 +114,42 @@ For judging and testing purposes, use the following placeholder account:
 ```
 civic-connect-belagavi/
 ├── src/
-│   ├── components/      # React UI components
+│   ├── components/          # React UI components
 │   │   ├── Header.tsx
 │   │   ├── Dashboard.tsx
 │   │   ├── NewReportForm.tsx
 │   │   ├── CivicMap.tsx
+│   │   ├── AdminDashboard.tsx
 │   │   └── Leaderboard.tsx
-│   ├── services/        # API & business logic
+│   ├── services/            # API & business logic
 │   │   ├── geminiService.ts    # AI analysis
 │   │   ├── firestoreService.ts # Database ops
 │   │   └── geoService.ts       # Jurisdiction detection
-│   └── contexts/        # React contexts
-├── functions/           # Cloud Functions backend
-└── package.json
+│   ├── contexts/            # React contexts
+│   ├── data/                # Mock data for demo
+│   └── types/               # TypeScript definitions
+├── functions/               # Cloud Functions (Python)
+│   ├── main.py
+│   └── requirements.txt
+├── index.html
+├── package.json
+└── vite.config.ts
+```
+
+---
+
+## 🔧 Deployment
+
+### Deploy to Firebase Hosting
+```bash
+npm run build
+firebase deploy --only hosting
+```
+
+### Deploy Cloud Functions
+```bash
+cd functions
+firebase deploy --only functions
 ```
 
 ---
@@ -108,4 +163,18 @@ civic-connect-belagavi/
 
 ---
 
-*Built with ❤️ for TechSprint Belgaum 2025.*
+## 🎥 Demo Video
+
+> 📹 [Watch the demo video](#) *(Link to be added)*
+
+---
+
+## 👥 Team
+
+**Built with ❤️ for TechSprint Belgaum 2025**
+
+---
+
+## 📄 License
+
+MIT License - feel free to use this project for your own civic initiatives!
